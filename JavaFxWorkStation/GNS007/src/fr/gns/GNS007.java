@@ -142,6 +142,8 @@ public class GNS007 extends Application {
         //v6
         Button btn = new Button();
         btn.setText("Valider");
+        
+        btn.disableProperty().bind(nomfield.textProperty().isEmpty().or(mdpfield.textProperty().isEmpty()).or(pays.selectionModelProperty().isNull()));
         btn.setOnAction(new EventHandler<ActionEvent>() {
             
             @Override
@@ -156,16 +158,13 @@ public class GNS007 extends Application {
                 erreurmdp.setHeaderText("Joueur "+nomfield.getText()+" non créé");
                 erreurmdp.setContentText("verifier votre mot de passe et la confirmation !!! ");
                 
-                Alert erreurpays = new Alert(AlertType.ERROR);
-                erreurpays.setTitle("Erreur de Pays");
-                erreurpays.setHeaderText("Joueur "+nomfield.getText()+" non choise le pays");
-                erreurpays.setContentText("verifier votre Pays est bien Choise !!! ");
-                
-                
+               
                 
 
-                if(pays.getSelectionModel().getSelectedItem() != null){
-               
+             
+                    
+                if(mdpfield.getText().length() > 6){
+
                     if(mdpfield.getText().equals(Cmdpfield.getText())){
 
                         boolean select = cgu.isSelected();
@@ -192,9 +191,14 @@ public class GNS007 extends Application {
                     }
                 }
                 else{
-                    
-                    erreurpays.showAndWait();
+                    Alert warning = new Alert(AlertType.WARNING);
+                    warning.setTitle("Attention de mdp");
+                    warning.setHeaderText("Probléme de mdp");
+                    warning.setContentText("Vérifier!!! Votre mot de passe doit \ncontenir au moins 6 caractère ");
+                    warning.showAndWait();
+
                 }
+               
                 
 
                 
@@ -223,7 +227,7 @@ public class GNS007 extends Application {
         VBox root = new VBox(6);
         root.getChildren().addAll(titre,h1,h2,h21,h3,hpays,h4,h5);
         
-        Scene scene = new Scene(root, 300, 250);
+        Scene scene = new Scene(root, 325, 350);
         
         primaryStage.setTitle("Creation des Joueurs");
         primaryStage.setScene(scene);
