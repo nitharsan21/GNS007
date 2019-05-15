@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -24,9 +25,12 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -56,6 +60,29 @@ public class GNS007 extends Application {
             this.pays= pays;
         }
         
+        public Joueur(String nom,String genre,String pays,boolean cgu){
+            this.nom = nom;
+            this.pays = pays;
+            this.genre = genre;
+            this.cgu= cgu;
+        }
+        
+        public String getNom(){
+            return this.nom;
+        }
+        
+        public String getGenre(){
+            return this.genre;
+        }
+        public String getPays(){
+            return this.pays;
+        }
+        
+        public boolean getCgu(){
+            return this.cgu;
+        }
+        
+        
         @Override
         public String toString(){
             return "nom :" +this.nom +", mdp :"+this.mdp +", Genre :"+this.genre+",Pays :"+this.pays+", CGU :"+this.cgu ;
@@ -78,7 +105,7 @@ public class GNS007 extends Application {
     public void start(Stage primaryStage) {
         //v1
         Label titre = new Label("Nouveau joueur :");
-     
+        TableView<Joueur> table = new TableView<Joueur>();
         
         //v2
         Label nom = new Label("Nom : ");
@@ -163,7 +190,7 @@ public class GNS007 extends Application {
 
              
                     
-                if(mdpfield.getText().length() > 6){
+                if(mdpfield.getText().length() > 1){
 
                     if(mdpfield.getText().equals(Cmdpfield.getText())){
 
@@ -175,6 +202,13 @@ public class GNS007 extends Application {
                         System.out.println(joueur.toString());
                         lesjoueurs.add(joueur);
                         Optional<ButtonType> resultat = ok.showAndWait();
+                        
+                        ObservableList<Joueur> list = FXCollections.observableArrayList(lesjoueurs);
+                        table.setItems(list);
+                        
+                        System.out.println(list);
+                        System.out.println(list.size());
+                        
                         if(resultat.get() == ButtonType.OK){
                             nomfield.clear();
                             mdpfield.clear();
@@ -224,16 +258,50 @@ public class GNS007 extends Application {
         HBox h5 = new HBox();
         h5.getChildren().addAll(btnreset,btn);
         
-        VBox root = new VBox(6);
-        root.getChildren().addAll(titre,h1,h2,h21,h3,hpays,h4,h5);
+        //formaulaire
+        VBox up = new VBox(6);
+        up.getChildren().addAll(titre,h1,h2,h21,h3,hpays,h4,h5);
         
-        Scene scene = new Scene(root, 325, 350);
+        //cree table
+        
+        
+        TableColumn<Joueur, String> nomJ = new TableColumn<Joueur, String>("Nom");
+        nomJ.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        
+        TableColumn<Joueur, String> gerneJ = new TableColumn<Joueur, String>("Genre");
+        gerneJ.setCellValueFactory(new PropertyValueFactory<>("genre"));
+        
+        TableColumn<Joueur, String> paysJ = new TableColumn<Joueur, String>("Pays");
+         paysJ.setCellValueFactory(new PropertyValueFactory<>("pays"));
+        
+        TableColumn<Joueur, Boolean> cguJ= new TableColumn<Joueur, Boolean>("CGU");
+        cguJ.setCellValueFactory(new PropertyValueFactory<>("cgu"));
+        
+
+        nomJ.setSortType(TableColumn.SortType.DESCENDING);
+        
+        
+        
+        table.getColumns().addAll(nomJ,gerneJ, paysJ, cguJ);
+ 
+  
+        
+        //table
+        VBox down = new VBox();  
+        down.getChildren().add(table);
+        
+        
+        VBox main = new VBox(2);
+        main.getChildren().addAll(up,down);
+        
+        Scene scene = new Scene(main, 325, 350);
         
         primaryStage.setTitle("Creation des Joueurs");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
+   
+ 
     /**
      * @param args the command line arguments
      */
