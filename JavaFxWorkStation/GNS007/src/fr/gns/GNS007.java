@@ -8,12 +8,16 @@ package fr.gns;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -37,10 +41,10 @@ public class GNS007 extends Application {
     public class Joueur{
         private String nom;
         private String mdp;
-        private char genre;
+        private String genre;
         private boolean cgu;
         
-        public Joueur(String nom,String mdp,char genre,boolean cgu){
+        public Joueur(String nom,String mdp,String genre,boolean cgu){
             this.nom = nom;
             this.mdp = mdp;
             this.genre = genre;
@@ -85,18 +89,29 @@ public class GNS007 extends Application {
         
         PasswordField mdpfield = new PasswordField();
         mdpfield.setMinWidth(50);
-        
+      
         HBox h2 = new HBox(2);
         h2.getChildren().addAll(mdp,mdpfield);
         
         
+        Label Cmdp = new Label("Confirmer Mdp : ");
+        
+        PasswordField Cmdpfield = new PasswordField();
+        Cmdpfield.setMinWidth(50);
+        
+        HBox h21 = new HBox(2);
+        h21.getChildren().addAll(Cmdp,Cmdpfield);
+        
         //v4
         ToggleGroup genre = new ToggleGroup();
         RadioButton femme = new RadioButton("Femme");
+        femme.setUserData('F');
         femme.setToggleGroup(genre);
         femme.setSelected(true);
         RadioButton homme = new RadioButton("Homme");
+        homme.setUserData('H');
         homme.setToggleGroup(genre);
+        
         
         HBox h3 = new HBox(1);
         h3.getChildren().addAll(femme,homme);
@@ -114,26 +129,41 @@ public class GNS007 extends Application {
             
             @Override
             public void handle(ActionEvent event) {
-                boolean select;
-                char gen;
-                if(cgu.isSelected()){
-                    select = true;
-                }else{
-                    select = false;
+                Alert ok = new Alert(AlertType.INFORMATION);
+                ok.setTitle(" Joueur Créé");
+                ok.setHeaderText(" le Joueur créé");
+                ok.setContentText("<<< le Joueur "+nomfield.getText()+" est bien créé!!! >>>");
+                
+                Alert erreur = new Alert(AlertType.ERROR);
+                erreur.setTitle("Erreur de mdp");
+                erreur.setHeaderText("Joueur "+nomfield.getText()+" non créé");
+                erreur.setContentText("verifier votre mot de passe et la confirmation !!! ");
+               
+                if(mdpfield.getText().equals(Cmdpfield.getText())){
+                
+                    boolean select = cgu.isSelected();
+                    String gen = genre.getSelectedToggle().getUserData().toString();
+                    
+                    Joueur joueur = new Joueur(nomfield.getText(),mdpfield.getText(),gen,select);
+                    System.out.println(joueur.toString());
+                    lesjoueurs.add(joueur);
+                    Optional<ButtonType> resultat = ok.showAndWait();
+                    if(resultat.get() == ButtonType.OK){
+                        nomfield.clear();
+                        mdpfield.clear();
+                        Cmdpfield.clear();
+                        cgu.setSelected(false);
+                        femme.setSelected(true);
+                    }
+
                 }
-                
-                if(femme.isSelected()){
-                    gen = 'f';
-                }else{
-                    gen = 'H';
+                else{
+                    erreur.showAndWait();
+                   
                 }
-                Joueur joueur = new Joueur(nomfield.getText(),mdpfield.getText(),gen,select);
-                System.out.println(joueur.toString());
-                lesjoueurs.add(joueur);
+
                 
                 
-                
-    
             }
         });
         
@@ -144,6 +174,7 @@ public class GNS007 extends Application {
             public void handle(ActionEvent event){
                nomfield.clear();
                mdpfield.clear();
+               Cmdpfield.clear();
                cgu.setSelected(false);
                femme.setSelected(true);
                
@@ -154,7 +185,7 @@ public class GNS007 extends Application {
         h5.getChildren().addAll(btnreset,btn);
         
         VBox root = new VBox(6);
-        root.getChildren().addAll(titre,h1,h2,h3,h4,h5);
+        root.getChildren().addAll(titre,h1,h2,h21,h3,h4,h5);
         
         Scene scene = new Scene(root, 300, 250);
         
