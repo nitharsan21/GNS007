@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -19,11 +20,13 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -43,17 +46,19 @@ public class GNS007 extends Application {
         private String mdp;
         private String genre;
         private boolean cgu;
+        private String pays;
         
-        public Joueur(String nom,String mdp,String genre,boolean cgu){
+        public Joueur(String nom,String mdp,String genre,boolean cgu, String pays){
             this.nom = nom;
             this.mdp = mdp;
             this.genre = genre;
             this.cgu = cgu;
+            this.pays= pays;
         }
         
         @Override
         public String toString(){
-            return "nom :" +this.nom +", mdp :"+this.mdp +", Genre :"+this.genre+", CGU :"+this.cgu ;
+            return "nom :" +this.nom +", mdp :"+this.mdp +", Genre :"+this.genre+",Pays :"+this.pays+", CGU :"+this.cgu ;
            
         }
     }
@@ -116,7 +121,19 @@ public class GNS007 extends Application {
         HBox h3 = new HBox(1);
         h3.getChildren().addAll(femme,homme);
         
-        //v5
+        //v5 pays
+        Label paytite = new Label("Pays :");
+        
+        ChoiceBox pays = new ChoiceBox(FXCollections.observableArrayList(
+        "France", "Sri Lanka", "Itale" ,"Espagne" ,"Etat Unis","Inde" ));
+        pays.setTooltip(new Tooltip(" selectionner une pays"));
+        
+        HBox hpays = new HBox(2);
+        hpays.getChildren().addAll(paytite,pays);
+        
+        
+        
+        //v6
         CheckBox cgu = new CheckBox("Acceptez-vous les C.G.U");
         
         HBox h4 = new HBox();
@@ -134,33 +151,51 @@ public class GNS007 extends Application {
                 ok.setHeaderText(" le Joueur créé");
                 ok.setContentText("<<< le Joueur "+nomfield.getText()+" est bien créé!!! >>>");
                 
-                Alert erreur = new Alert(AlertType.ERROR);
-                erreur.setTitle("Erreur de mdp");
-                erreur.setHeaderText("Joueur "+nomfield.getText()+" non créé");
-                erreur.setContentText("verifier votre mot de passe et la confirmation !!! ");
-               
-                if(mdpfield.getText().equals(Cmdpfield.getText())){
+                Alert erreurmdp = new Alert(AlertType.ERROR);
+                erreurmdp.setTitle("Erreur de mdp");
+                erreurmdp.setHeaderText("Joueur "+nomfield.getText()+" non créé");
+                erreurmdp.setContentText("verifier votre mot de passe et la confirmation !!! ");
                 
-                    boolean select = cgu.isSelected();
-                    String gen = genre.getSelectedToggle().getUserData().toString();
-                    
-                    Joueur joueur = new Joueur(nomfield.getText(),mdpfield.getText(),gen,select);
-                    System.out.println(joueur.toString());
-                    lesjoueurs.add(joueur);
-                    Optional<ButtonType> resultat = ok.showAndWait();
-                    if(resultat.get() == ButtonType.OK){
-                        nomfield.clear();
-                        mdpfield.clear();
-                        Cmdpfield.clear();
-                        cgu.setSelected(false);
-                        femme.setSelected(true);
-                    }
+                Alert erreurpays = new Alert(AlertType.ERROR);
+                erreurpays.setTitle("Erreur de Pays");
+                erreurpays.setHeaderText("Joueur "+nomfield.getText()+" non choise le pays");
+                erreurpays.setContentText("verifier votre Pays est bien Choise !!! ");
+                
+                
+                
 
+                if(pays.getSelectionModel().getSelectedItem() != null){
+               
+                    if(mdpfield.getText().equals(Cmdpfield.getText())){
+
+                        boolean select = cgu.isSelected();
+                        String gen = genre.getSelectedToggle().getUserData().toString();
+                        String pay = (String) pays.getSelectionModel().getSelectedItem();
+
+                        Joueur joueur = new Joueur(nomfield.getText(),mdpfield.getText(),gen,select,pay);
+                        System.out.println(joueur.toString());
+                        lesjoueurs.add(joueur);
+                        Optional<ButtonType> resultat = ok.showAndWait();
+                        if(resultat.get() == ButtonType.OK){
+                            nomfield.clear();
+                            mdpfield.clear();
+                            Cmdpfield.clear();
+                            cgu.setSelected(false);
+                            femme.setSelected(true);
+                            pays.getSelectionModel().clearSelection();
+                        }
+
+                    }
+                    else{
+                        erreurmdp.showAndWait();
+
+                    }
                 }
                 else{
-                    erreur.showAndWait();
-                   
+                    
+                    erreurpays.showAndWait();
                 }
+                
 
                 
                 
@@ -177,6 +212,7 @@ public class GNS007 extends Application {
                Cmdpfield.clear();
                cgu.setSelected(false);
                femme.setSelected(true);
+               pays.getSelectionModel().clearSelection();
                
             }
         });
@@ -185,7 +221,7 @@ public class GNS007 extends Application {
         h5.getChildren().addAll(btnreset,btn);
         
         VBox root = new VBox(6);
-        root.getChildren().addAll(titre,h1,h2,h21,h3,h4,h5);
+        root.getChildren().addAll(titre,h1,h2,h21,h3,hpays,h4,h5);
         
         Scene scene = new Scene(root, 300, 250);
         
